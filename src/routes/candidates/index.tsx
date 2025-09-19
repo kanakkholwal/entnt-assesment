@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { MainLayout } from '@/components/layout/main-layout'
-import { Container } from '@/components/layout/page-layout'
 import { CandidatesList, KanbanBoard } from '@/components/candidates'
 import { Button } from '@/components/ui/button'
 import { LayoutList, Kanban } from 'lucide-react'

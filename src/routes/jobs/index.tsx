@@ -1,8 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { MainLayout } from '@/components/layout/main-layout'
-import { Container } from '@/components/layout/page-layout'
 import { JobsBoardDraggable } from '@/components/jobs'
-import type { Job,  } from '@/types/job'
+import type { Job } from '@/types/job'
 
 export const Route = createFileRoute('/jobs/')({
   component: JobsPage,

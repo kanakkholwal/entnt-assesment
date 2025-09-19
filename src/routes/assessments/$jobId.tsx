@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { MainLayout } from '@/components/layout/main-layout'
-import { PageLayout, Container } from '@/components/layout/page-layout'
+import { PageLayout } from '@/components/layout/page-layout'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import { Link } from '@tanstack/react-router'

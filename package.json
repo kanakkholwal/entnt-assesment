@@ -5,8 +5,11 @@
   "scripts": {
     "dev": "vite --port 3000",
     "start": "vite --port 3000",
-    "build": "vite build && tsc",
+    "build": "tsc && vite build",
+    "build:analyze": "tsc && vite build --mode production && node scripts/analyze-bundle.js",
+    "build:production": "tsc && vite build --mode production",
     "serve": "vite preview",
+    "preview": "vite preview --port 4173",
     "test": "vitest run",
     "format": "biome format",
     "lint": "biome lint",
