@@ -33,6 +33,7 @@ export interface CandidatesStore extends LoadingState {
   updateCandidateStage: (id: string, stage: CandidateStage) => Promise<void>
   addCandidateNote: (id: string, note: string) => Promise<void>
   setFilters: (filters: Partial<CandidateFilters>) => void
+  getCandidateById:(id: string) => Promise<Candidate | null>
 }
 
 // Assessments Store Types

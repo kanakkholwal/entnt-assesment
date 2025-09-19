@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -10,8 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { 
-  Settings, 
+import {
+  Settings,
   LogOut,
   User,
   Moon,
@@ -27,23 +27,25 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-6">
         <div className="flex items-center space-x-6">
-          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm">
-              <span className="text-primary-foreground font-bold text-sm">TF</span>
-            </div>
-            <span className="font-bold text-lg bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
-              TalentFlow
-            </span>
-          </Link>
-          
-          <Navigation />
+
+
+          <Navigation >
+            <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm">
+                <span className="text-primary-foreground font-bold text-sm">TF</span>
+              </div>
+              <span className="font-bold text-lg bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+                TalentFlow
+              </span>
+            </Link>
+          </Navigation>
         </div>
 
         <div className="flex items-center space-x-4">
           <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
             Demo Mode
           </Badge>
-          
+
           <Button
             variant="ghost"
             size="icon"

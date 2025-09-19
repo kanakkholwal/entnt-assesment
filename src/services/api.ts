@@ -19,8 +19,6 @@ import type {
   TimelineEvent
 } from '../types'
 
-// Base API configuration
-const API_BASE_URL = '/api'
 
 // Generic API error class
 export class APIError extends Error {
@@ -35,50 +33,56 @@ export class APIError extends Error {
   }
 }
 
-// Generic fetch wrapper with error handling
+// Base API URL - in development, MSW will intercept these requests
+const API_BASE_URL = '/api'
+
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`
-  
-  const config: RequestInit = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  }
-
   try {
-    const response = await fetch(url, config)
+    const url = `${API_BASE_URL}${endpoint}`
+    
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    })
+
+    // Handle non-JSON responses (like 204 No Content)
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+      return undefined as T
+    }
+
     const data = await response.json()
 
     if (!response.ok) {
       throw new APIError(
-        data.error || `HTTP ${response.status}`,
+        data.error || data.message || `HTTP ${response.status}`,
         response.status,
         data.code,
-        data.retryable || response.status >= 500
+        response.status >= 500
       )
     }
 
+    // Handle MSW response format
     return data.data || data
   } catch (error) {
     if (error instanceof APIError) {
       throw error
     }
-    
-    // Network or other errors
+
+    // Network or parsing errors
     throw new APIError(
-      'Network error or server unavailable',
+      error instanceof Error ? error.message : 'Request failed',
       0,
       'NETWORK_ERROR',
       true
     )
   }
 }
-
 // Retry mechanism with exponential backoff
 async function withRetry<T>(
   operation: () => Promise<T>,

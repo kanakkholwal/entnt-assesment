@@ -1,30 +1,36 @@
+// ./mocks/browser.ts
 import { setupWorker } from 'msw/browser'
-import { handlers } from './handlers/index'
-import { initializeMockData } from './seed'
+import { handlers } from './handlers'
+import { db } from '../db'
+import { nanoid } from "nanoid"
 import { initDevUtils } from './dev-utils'
 
-// Setup MSW worker for browser environment
 export const worker = setupWorker(...handlers)
 
-// Initialize mock data function
-let dataInitialized = false
+let initialized = false
+export async function initializeDataOnce() {
+  if (initialized) return
+  initialized = true
 
-export const initializeDataOnce = async () => {
-  if (!dataInitialized) {
-    try {
-      console.log('[MSW] Starting data initialization...')
-      await initializeMockData()
-      dataInitialized = true
-      
-      // Initialize development utilities
-      initDevUtils()
-      console.log('[MSW] Data initialization completed successfully')
-    } catch (error) {
-      console.error('[MSW] Failed to initialize mock data:', error)
-      throw error // Re-throw to see the actual error
+  // Make sure Dexie opens before seeding
+  await db.open()
+
+  // Seed jobs, candidates, etc.
+  await db.transaction('rw', db.jobs, db.candidates, async () => {
+    if ((await db.jobs.count()) === 0) {
+      await db.jobs.add({ 
+        id: nanoid(),
+        title: 'Frontend Dev', 
+        status: 'active', 
+        order: 1, 
+        slug: 'frontend-dev', 
+        tags: [], 
+        createdAt: Date.now(), 
+        updatedAt: Date.now() 
+      })
     }
-  }
-}
+  })
 
-// Export data management functions
-export { initializeMockData, seedMockData, clearMockData, resetMockData } from './seed'
+  // Initialize development utilities
+  initDevUtils()
+}

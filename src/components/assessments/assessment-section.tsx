@@ -41,6 +41,7 @@ interface AssessmentSectionProps {
   onUpdateQuestion: (questionId: string, updates: Partial<Question>) => void
   onDeleteQuestion: (questionId: string) => void
   isDragging?: boolean
+  allQuestions?: Question[] // All questions from all sections for conditional logic
 }
 
 export function AssessmentSection({
@@ -51,7 +52,8 @@ export function AssessmentSection({
   onAddQuestion,
   onUpdateQuestion,
   onDeleteQuestion,
-  isDragging
+  isDragging,
+  allQuestions = []
 }: AssessmentSectionProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isEditingTitle, setIsEditingTitle] = useState(false)
@@ -192,33 +194,33 @@ export function AssessmentSection({
 
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon_sm"
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="h-6 w-6 p-0"
+                className="p-0"
               >
                 {isCollapsed ? (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown />
                 ) : (
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp  />
                 )}
               </Button>
 
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon_sm"
                 onClick={onDuplicate}
-                className="h-6 w-6 p-0"
+                className="p-0"
               >
-                <Copy className="h-4 w-4" />
+                <Copy  />
               </Button>
 
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon_sm"
                 onClick={onDelete}
-                className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 />
               </Button>
             </div>
           </div>
@@ -228,8 +230,8 @@ export function AssessmentSection({
           <CardContent className="pt-0">
             {/* Questions */}
             {section.questions.length === 0 ? (
-              <div className="text-center py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                <p className="text-sm text-muted-foreground mb-3">
                   No questions in this section yet
                 </p>
                 <Button onClick={handleAddQuestion} size="sm" variant="outline">
@@ -256,6 +258,7 @@ export function AssessmentSection({
                         onUpdate={(updates) => onUpdateQuestion(question.id, updates)}
                         onDelete={() => onDeleteQuestion(question.id)}
                         isDragging={activeQuestionId === question.id}
+                        availableQuestions={allQuestions}
                       />
                     ))}
                   </div>
@@ -269,6 +272,7 @@ export function AssessmentSection({
                         onUpdate={() => {}}
                         onDelete={() => {}}
                         isDragging={true}
+                        availableQuestions={allQuestions}
                       />
                     </div>
                   ) : null}

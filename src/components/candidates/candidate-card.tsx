@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { formatDistanceToNow } from 'date-fns'
 import type { Candidate } from '@/types/candidate'
+import { cn } from '@/lib/utils'
 
 interface CandidateCardProps {
   candidate: Candidate
@@ -44,9 +45,9 @@ export const CandidateCard = memo<CandidateCardProps>(({ candidate, onClick }) =
 
   return (
     <Card 
-      className={`transition-all duration-200 hover:shadow-md ${
-        onClick ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800' : ''
-      }`}
+      className={cn('transition-all duration-200 hover:shadow-md',
+        onClick ? 'cursor-pointer hover:bg-primary/5 backdrop-blur-lg' : ''
+      )}
       onClick={handleClick}
     >
       <CardContent className="p-4">
@@ -60,10 +61,10 @@ export const CandidateCard = memo<CandidateCardProps>(({ candidate, onClick }) =
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                <h3 className="font-medium text-foreground truncate">
                   {candidate.name}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                <p className="text-sm text-muted-foreground truncate">
                   {candidate.email}
                 </p>
               </div>

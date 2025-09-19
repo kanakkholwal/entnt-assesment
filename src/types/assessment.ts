@@ -13,15 +13,24 @@ export interface ValidationRule {
   min?: number
   max?: number
   pattern?: string
+  patternMessage?: string
   fileTypes?: string[]
-  maxFileSize?: number
+  maxFileSize?: number // in MB
+  minFileSize?: number // in MB
+  customMessage?: string
 }
 
 export interface ConditionalRule {
   dependsOn: string // Question ID
-  condition: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than'
-  value: any
-  action: 'show' | 'hide'
+  condition: 'equals' | 'not_equals' | 'contains' | 'not_contains' | 'greater_than' | 'less_than' | 'greater_equal' | 'less_equal' | 'is_empty' | 'is_not_empty'
+  value?: any
+  action: 'show' | 'hide' | 'require' | 'disable'
+}
+
+export interface ValidationError {
+  field: string
+  message: string
+  type: 'required' | 'minLength' | 'maxLength' | 'min' | 'max' | 'pattern' | 'fileType' | 'fileSize' | 'custom'
 }
 
 export interface Question {

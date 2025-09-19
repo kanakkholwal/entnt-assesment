@@ -4,12 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -23,8 +18,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
-import { X } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import type { Job, CreateJobRequest, UpdateJobRequest } from '@/types/job'
+import { ResponsiveDialog } from '../ui/responsive-dialog'
 
 const jobFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title must be less than 100 characters'),
@@ -41,23 +37,25 @@ type JobFormData = z.infer<typeof jobFormSchema>
 
 interface JobFormProps {
   job?: Job
-  open: boolean
+  open?: boolean
   onOpenChange: (open: boolean) => void
   onSubmit: (data: CreateJobRequest | UpdateJobRequest) => Promise<void>
   loading?: boolean
+  disabled?: boolean
+  btnProps?: React.ComponentProps<typeof Button>
 }
 
-export function JobForm({ job, open, onOpenChange, onSubmit, loading = false }: JobFormProps) {
+export function JobForm({ job, open, onOpenChange, onSubmit, loading = false, disabled, btnProps }: JobFormProps) {
   const isEditing = !!job
-  
+
   const form = useForm<JobFormData>({
     resolver: zodResolver(jobFormSchema),
     defaultValues: {
-      title: '',
-      slug: '',
-      description: '',
-      requirements: [],
-      tags: [],
+      title: isEditing ? job?.title : '',
+      slug: isEditing ? job?.slug : '',
+      description: isEditing ? job?.description : '',
+      requirements: isEditing ? job?.requirements : [],
+      tags: isEditing ? job?.tags : [],
     },
   })
 
@@ -154,19 +152,25 @@ export function JobForm({ job, open, onOpenChange, onSubmit, loading = false }: 
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'Edit Job' : 'Create New Job'}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditing 
-              ? 'Update the job details below.' 
-              : 'Fill in the details to create a new job posting.'}
-          </DialogDescription>
-        </DialogHeader>
-
+    <>
+      <ResponsiveDialog
+        title={isEditing ? 'Edit Job' : 'Create Job'}
+        description={isEditing
+          ? 'Update the job details below.'
+          : 'Fill in the details to create a new job posting.'}
+        className='sm:max-w-[600px] max-h-[90vh] overflow-y-auto'
+        btnProps={{
+          size: 'sm',
+          children: isEditing ? 'Edit Job' : <>
+            <Plus />
+            Create Job
+          </>,
+          ...btnProps,
+          disabled,
+        }}
+        defaultOpen={open}
+        onOpenChange={onOpenChange}
+      >
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -224,25 +228,26 @@ export function JobForm({ job, open, onOpenChange, onSubmit, loading = false }: 
               <FormDescription>
                 List the key requirements for this position
               </FormDescription>
-              
+
               {(form.watch('requirements') || []).map((requirement, index) => (
-                <div key={index} className="flex gap-2">
+                <div key={index} className="flex gap-2 items-center">
                   <Input
                     value={requirement}
                     onChange={(e) => updateRequirement(index, e.target.value)}
                     placeholder={`Requirement ${index + 1}`}
+                    custom-size="sm"
                   />
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
+                    size="icon_sm"
                     onClick={() => removeRequirement(index)}
                   >
-                    <X className="h-4 w-4" />
+                    <X />
                   </Button>
                 </div>
               ))}
-              
+
               <Button
                 type="button"
                 variant="outline"
@@ -258,12 +263,12 @@ export function JobForm({ job, open, onOpenChange, onSubmit, loading = false }: 
               <FormDescription>
                 Add tags to categorize this job (press Enter to add)
               </FormDescription>
-              
+
               <Input
                 placeholder="e.g. React, TypeScript, Remote"
                 onKeyDown={handleTagKeyDown}
               />
-              
+
               {(form.watch('tags') || []).length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {(form.watch('tags') || []).map((tag) => (
@@ -284,22 +289,15 @@ export function JobForm({ job, open, onOpenChange, onSubmit, loading = false }: 
               )}
             </div>
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={loading}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
+            <DialogFooter >
+              <Button type="submit"  disabled={loading}>
                 {loading ? 'Saving...' : (isEditing ? 'Update Job' : 'Create Job')}
               </Button>
             </DialogFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialog>
+
+    </>
   )
 }

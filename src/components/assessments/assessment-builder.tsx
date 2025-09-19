@@ -14,7 +14,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -26,8 +26,7 @@ import {
   Eye, 
   Settings, 
   GripVertical,
-  Trash2,
-  Copy
+
 } from 'lucide-react'
 import { AssessmentSection } from './assessment-section'
 import { AssessmentPreview } from './assessment-preview'
@@ -275,7 +274,7 @@ export function AssessmentBuilder({
       {/* Builder Panel */}
       <div className={cn("flex-1 flex flex-col", showPreview ? "w-1/2" : "w-full")}>
         {/* Header */}
-        <div className="flex-shrink-0 p-6 border-b bg-white dark:bg-gray-900">
+        <div className="flex-shrink-0 p-6 border-b bg-card">
           <div className="flex items-center justify-between mb-4">
             <div className="flex-1 max-w-md">
               <Label htmlFor="assessment-title" className="text-sm font-medium">
@@ -302,7 +301,7 @@ export function AssessmentBuilder({
 
           <div className="flex items-center gap-2">
             <Button onClick={addSection} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="size-4 mr-2" />
               Add Section
             </Button>
             
@@ -313,7 +312,7 @@ export function AssessmentBuilder({
               size="sm"
               onClick={() => setShowPreview(!showPreview)}
             >
-              <Eye className="h-4 w-4 mr-2" />
+              <Eye className="size-4 mr-2" />
               {showPreview ? 'Hide Preview' : 'Show Preview'}
             </Button>
             
@@ -322,7 +321,7 @@ export function AssessmentBuilder({
               disabled={isSaving}
               size="sm"
             >
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="size-4 mr-2" />
               {isSaving ? 'Saving...' : 'Save Assessment'}
             </Button>
           </div>
@@ -331,18 +330,18 @@ export function AssessmentBuilder({
         {/* Sections */}
         <div className="flex-1 overflow-y-auto p-6">
           {assessment.sections.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="text-gray-400 dark:text-gray-600 mb-4">
-                <Settings className="h-12 w-12 mx-auto mb-2" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+            <div className="flex flex-col items-center justify-center py-12 text-center bg-card rounded-xl">
+              <div className="text-foreground mb-4">
+                <Settings className="size-12 mx-auto mb-2" />
+                <h3 className="text-lg font-medium">
                   No sections yet
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   Add your first section to start building the assessment
                 </p>
               </div>
-              <Button onClick={addSection}>
-                <Plus className="h-4 w-4 mr-2" />
+              <Button onClick={addSection} size="sm" variant="default_light">
+                <Plus />
                 Add First Section
               </Button>
             </div>
@@ -358,19 +357,25 @@ export function AssessmentBuilder({
                 strategy={verticalListSortingStrategy}
               >
                 <div className="space-y-6">
-                  {assessment.sections.map((section) => (
-                    <AssessmentSection
-                      key={section.id}
-                      section={section}
-                      onUpdate={(updates) => updateSection(section.id, updates)}
-                      onDelete={() => deleteSection(section.id)}
-                      onDuplicate={() => duplicateSection(section.id)}
-                      onAddQuestion={(question) => addQuestion(section.id, question)}
-                      onUpdateQuestion={(questionId, updates) => updateQuestion(section.id, questionId, updates)}
-                      onDeleteQuestion={(questionId) => deleteQuestion(section.id, questionId)}
-                      isDragging={activeId === section.id}
-                    />
-                  ))}
+                  {assessment.sections.map((section) => {
+                    // Get all questions from all sections for conditional logic
+                    const allQuestions = assessment.sections.flatMap(s => s.questions)
+                    
+                    return (
+                      <AssessmentSection
+                        key={section.id}
+                        section={section}
+                        onUpdate={(updates) => updateSection(section.id, updates)}
+                        onDelete={() => deleteSection(section.id)}
+                        onDuplicate={() => duplicateSection(section.id)}
+                        onAddQuestion={(question) => addQuestion(section.id, question)}
+                        onUpdateQuestion={(questionId, updates) => updateQuestion(section.id, questionId, updates)}
+                        onDeleteQuestion={(questionId) => deleteQuestion(section.id, questionId)}
+                        isDragging={activeId === section.id}
+                        allQuestions={allQuestions}
+                      />
+                    )
+                  })}
                 </div>
               </SortableContext>
 
@@ -380,7 +385,7 @@ export function AssessmentBuilder({
                     <Card className="shadow-lg border-blue-200">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <GripVertical className="h-4 w-4 text-gray-400" />
+                          <GripVertical className="size-4 text-gray-400" />
                           {activeSection.title}
                         </CardTitle>
                       </CardHeader>
@@ -398,11 +403,11 @@ export function AssessmentBuilder({
         <>
           <Separator orientation="vertical" />
           <div className="w-1/2 flex flex-col">
-            <div className="flex-shrink-0 p-6 border-b bg-gray-50 dark:bg-gray-800">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <div className="flex-shrink-0 p-6 border-b bg-card">
+              <h3 className="text-lg font-semibold text-foreground">
                 Live Preview
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 See how candidates will experience this assessment
               </p>
             </div>

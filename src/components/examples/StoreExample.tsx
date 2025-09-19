@@ -117,12 +117,12 @@ export const StoreExample: React.FC = () => {
                     <div>
                       <h4 className="font-medium">{notification.title}</h4>
                       {notification.message && (
-                        <p className="text-sm text-gray-600">{notification.message}</p>
+                        <p className="text-sm text-muted-foreground">{notification.message}</p>
                       )}
                     </div>
                     <button
                       onClick={() => removeNotification(notification.id)}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 hover:text-muted-foreground"
                     >
                       ×
                     </button>
@@ -165,7 +165,7 @@ export const StoreExample: React.FC = () => {
             </button>
           </div>
           
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             {jobsLoading ? 'Loading jobs...' : `${jobs.length} jobs loaded`}
             {jobsError && <span className="text-red-600 ml-2">Error: {jobsError}</span>}
           </div>
@@ -174,8 +174,8 @@ export const StoreExample: React.FC = () => {
             {jobs.slice(0, 6).map(job => (
               <div key={job.id} className="border rounded p-4">
                 <h3 className="font-medium">{job.title}</h3>
-                <p className="text-sm text-gray-600">Status: {job.status}</p>
-                <p className="text-sm text-gray-600">Tags: {job.tags.join(', ')}</p>
+                <p className="text-sm text-muted-foreground">Status: {job.status}</p>
+                <p className="text-sm text-muted-foreground">Tags: {job.tags.join(', ')}</p>
               </div>
             ))}
           </div>
@@ -193,7 +193,7 @@ export const StoreExample: React.FC = () => {
             className="px-3 py-2 border rounded w-full"
           />
           
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             {candidatesLoading ? 'Loading candidates...' : `${candidates.length} candidates loaded`}
           </div>
           
@@ -201,7 +201,7 @@ export const StoreExample: React.FC = () => {
             {Object.entries(stageCounts).map(([stage, count]) => (
               <div key={stage} className="text-center p-3 bg-gray-50 rounded">
                 <div className="text-2xl font-bold">{count}</div>
-                <div className="text-sm text-gray-600 capitalize">{stage}</div>
+                <div className="text-sm text-muted-foreground capitalize">{stage}</div>
               </div>
             ))}
           </div>
@@ -216,8 +216,8 @@ export const StoreExample: React.FC = () => {
                 onClick={() => selectCandidate(candidate)}
               >
                 <h3 className="font-medium">{candidate.name}</h3>
-                <p className="text-sm text-gray-600">{candidate.email}</p>
-                <p className="text-sm text-gray-600">Stage: {candidate.stage}</p>
+                <p className="text-sm text-muted-foreground">{candidate.email}</p>
+                <p className="text-sm text-muted-foreground">Stage: {candidate.stage}</p>
               </div>
             ))}
           </div>
@@ -236,7 +236,7 @@ export const StoreExample: React.FC = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Assessments Store</h2>
         <div className="space-y-4">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             {assessmentsLoading ? 'Loading assessments...' : 'Assessments ready'}
           </div>
           
@@ -266,8 +266,8 @@ export const StoreExample: React.FC = () => {
             <div className="bg-purple-50 p-4 rounded">
               <h3 className="font-medium">Current Assessment:</h3>
               <p>{currentAssessment.title}</p>
-              <p className="text-sm text-gray-600">Job ID: {currentAssessment.jobId}</p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">Job ID: {currentAssessment.jobId}</p>
+              <p className="text-sm text-muted-foreground">
                 Has assessment for demo-job: {hasAssessment('demo-job') ? 'Yes' : 'No'}
               </p>
             </div>

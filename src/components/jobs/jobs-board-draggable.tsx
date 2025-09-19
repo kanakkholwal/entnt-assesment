@@ -21,15 +21,16 @@ import { CSS } from '@dnd-kit/utilities'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { GripVertical, Plus, RefreshCw } from 'lucide-react'
+import { GripVertical, RefreshCw, RotateCw } from 'lucide-react'
 import { useJobsStore } from '@/stores/jobs'
 import { JobCard } from './job-card'
 import { toast } from 'sonner'
-import type { Job } from '@/types/job'
+import type { CreateJobRequest, Job, UpdateJobRequest } from '@/types/job'
+import { JobForm } from './job-form'
 
 interface DraggableJobCardProps {
   job: Job
-  onEdit?: (job: Job) => void
+  onEdit: (job: UpdateJobRequest) => Promise<void>
   onToggleStatus?: (job: Job) => void
   onView?: (job: Job) => void
   isDragging?: boolean
@@ -64,7 +65,7 @@ function DraggableJobCard({ job, onEdit, onToggleStatus, onView, isDragging }: D
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </Button>
       </div>
-      
+
       <div className="pl-8">
         <JobCard
           job={job}
@@ -81,7 +82,7 @@ function DraggableJobCard({ job, onEdit, onToggleStatus, onView, isDragging }: D
 interface JobsBoardDraggableProps {
   onJobSelect?: (job: Job) => void
   onCreateJob?: () => void
-  onEditJob?: (job: Job) => void
+  onEditJob: (job: UpdateJobRequest) => Promise<void>
 }
 
 export function JobsBoardDraggable({ onJobSelect, onCreateJob, onEditJob }: JobsBoardDraggableProps) {
@@ -92,7 +93,27 @@ export function JobsBoardDraggable({ onJobSelect, onCreateJob, onEditJob }: Jobs
     fetchJobs,
     updateJob,
     reorderJobs,
+    createJob
   } = useJobsStore()
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+ 
+
+
+  const handleCreateSubmit = async (data: CreateJobRequest | UpdateJobRequest) => {
+    setIsSubmitting(true)
+    try {
+      await createJob(data as CreateJobRequest)
+      toast.success('Job created successfully!')
+    } catch (error) {
+      toast.error('Failed to create job. Please try again.')
+      throw error // Re-throw to prevent modal from closing
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   const [activeId, setActiveId] = useState<string | null>(null)
   const [isReordering, setIsReordering] = useState(false)
@@ -174,7 +195,7 @@ export function JobsBoardDraggable({ onJobSelect, onCreateJob, onEditJob }: Jobs
               Manage your job postings and requirements
             </p>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -185,12 +206,14 @@ export function JobsBoardDraggable({ onJobSelect, onCreateJob, onEditJob }: Jobs
               <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
-            
+
             {onCreateJob && (
-              <Button onClick={onCreateJob}>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Job
-              </Button>
+              <JobForm
+                open={isCreateModalOpen}
+                onOpenChange={setIsCreateModalOpen}
+                onSubmit={handleCreateSubmit}
+                loading={isSubmitting}
+              />
             )}
           </div>
         </div>
@@ -206,6 +229,7 @@ export function JobsBoardDraggable({ onJobSelect, onCreateJob, onEditJob }: Jobs
                 onClick={handleRefresh}
                 className="ml-2"
               >
+                <RotateCw />
                 Try Again
               </Button>
             </AlertDescription>
@@ -221,11 +245,12 @@ export function JobsBoardDraggable({ onJobSelect, onCreateJob, onEditJob }: Jobs
                 Get started by creating your first job posting.
               </p>
               {onCreateJob && (
-                <Button onClick={onCreateJob} className="mt-4">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Job
-                </Button>
-              )}
+               <JobForm
+                open={isCreateModalOpen}
+                onOpenChange={setIsCreateModalOpen}
+                onSubmit={handleCreateSubmit}
+                loading={isSubmitting}
+              />)}
             </div>
           </CardContent>
         </Card>
@@ -243,7 +268,7 @@ export function JobsBoardDraggable({ onJobSelect, onCreateJob, onEditJob }: Jobs
             Drag and drop to reorder • Manage your job postings and requirements
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -254,12 +279,16 @@ export function JobsBoardDraggable({ onJobSelect, onCreateJob, onEditJob }: Jobs
             <RefreshCw className={`mr-2 h-4 w-4 ${(loading || isReordering) ? 'animate-spin' : ''}`} />
             {isReordering ? 'Reordering...' : 'Refresh'}
           </Button>
-          
+
           {onCreateJob && (
-            <Button onClick={onCreateJob} disabled={isReordering}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Job
-            </Button>
+            <JobForm
+                open={isCreateModalOpen}
+                onOpenChange={setIsCreateModalOpen}
+                onSubmit={handleCreateSubmit}
+                loading={isSubmitting}
+                disabled={isReordering}
+              />
+           
           )}
         </div>
       </div>
@@ -320,6 +349,9 @@ export function JobsBoardDraggable({ onJobSelect, onCreateJob, onEditJob }: Jobs
               <div className="rotate-3 scale-105">
                 <JobCard
                   job={activeJob}
+                  onEdit={onEditJob}
+                  onToggleStatus={() => {}}
+                  onView={() => {}}
                   draggable={true}
                 />
               </div>

@@ -1,7 +1,8 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanstackDevtools } from '@tanstack/react-devtools'
-import { ErrorBoundary } from '@/components/ui/error-boundary'
+import { GlobalErrorBoundary, NotificationSystem } from '@/components/ui/notification-system'
+import { ToastProvider } from '@/components/ui/toast-provider'
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -17,7 +18,7 @@ export const Route = createRootRoute({
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-2">Application Error</h1>
-          <p className="text-gray-600 mb-4">Something went wrong. Redirecting...</p>
+          <p className="text-muted-foreground mb-4">Something went wrong. Redirecting...</p>
         </div>
       </div>
     )
@@ -32,7 +33,7 @@ export const Route = createRootRoute({
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Page Not Found</h1>
-          <p className="text-gray-600 mb-4">Redirecting...</p>
+          <p className="text-muted-foreground mb-4">Redirecting...</p>
         </div>
       </div>
     )
@@ -41,10 +42,17 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <ErrorBoundary>
+    <GlobalErrorBoundary>
       <div className="min-h-screen bg-background">
         <Outlet />
+        
+        {/* Global notification system */}
+        <NotificationSystem />
+        
+        {/* Toast provider for sonner toasts */}
+        <ToastProvider />
       </div>
+      
       {process.env.NODE_ENV === 'development' && (
         <TanstackDevtools
           config={{
@@ -58,6 +66,6 @@ function RootComponent() {
           ]}
         />
       )}
-    </ErrorBoundary>
+    </GlobalErrorBoundary>
   )
 }

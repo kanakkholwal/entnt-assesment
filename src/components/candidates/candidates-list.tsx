@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { RefreshCw, Users } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 import type { Candidate } from '@/types/candidate'
+import { cn } from '@/lib/utils'
 
 interface CandidatesListProps {
   className?: string
@@ -16,7 +17,7 @@ interface CandidatesListProps {
 export function CandidatesList({ className }: CandidatesListProps) {
   const navigate = useNavigate()
   const parentRef = useRef<HTMLDivElement>(null)
-  
+
   const {
     candidates,
     loading,
@@ -30,9 +31,9 @@ export function CandidatesList({ className }: CandidatesListProps) {
   // Filter candidates client-side for search
   const filteredCandidates = useMemo(() => {
     if (!filters.search) return candidates
-    
+
     const searchTerm = filters.search.toLowerCase()
-    return candidates.filter(candidate => 
+    return candidates.filter(candidate =>
       candidate.name.toLowerCase().includes(searchTerm) ||
       candidate.email.toLowerCase().includes(searchTerm)
     )
@@ -67,42 +68,22 @@ export function CandidatesList({ className }: CandidatesListProps) {
     fetchCandidates()
   }
 
-  if (error) {
-    return (
-      <div className={`flex flex-col items-center justify-center py-12 ${className}`}>
-        <div className="text-center">
-          <div className="text-red-500 mb-2">
-            <Users className="h-12 w-12 mx-auto" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Failed to load candidates
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            {error}
-          </p>
-          <Button onClick={handleRefresh} variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Try again
-          </Button>
-        </div>
-      </div>
-    )
-  }
+
 
   return (
-    <div className={`flex flex-col h-full ${className}`}>
+    <div className={cn('flex flex-col h-ful', className)}>
       {/* Header with search and filters */}
-      <div className="flex-shrink-0 space-y-4 p-4 border-b bg-white dark:bg-gray-900">
+      <div className="flex-shrink-0 space-y-4 p-4 border-b bg-card sticky top-[65px] z-10">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-lg font-semibold text-foreground">
               Candidates
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               {filteredCandidates.length} of {pagination.total} candidates
             </p>
           </div>
-          
+
           <Button
             onClick={handleRefresh}
             variant="outline"
@@ -126,17 +107,36 @@ export function CandidatesList({ className }: CandidatesListProps) {
         />
       </div>
 
-      {/* Virtualized list */}
-      <div className="flex-1 overflow-hidden">
+
+      {!loading && (
+        error ? <div className={cn('flex flex-col items-center justify-center py-12 bg-card rounded-xl my-10', className)}>
+        <div className="text-center">
+          <div className="text-red-500 mb-2">
+            <Users className="h-12 w-12 mx-auto" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            Failed to load candidates
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            {error}
+          </p>
+          <Button onClick={handleRefresh} variant="outline">
+            <RefreshCw  />
+            Try again
+          </Button>
+        </div>
+      </div> : <div className="flex-1 overflow-hidden">
+        {/* Virtualized list */}
+
         {filteredCandidates.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full py-12">
             <div className="text-center">
-              <Users className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              <Users className="size-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 {filters.search || filters.stage ? 'No candidates found' : 'No candidates yet'}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {filters.search || filters.stage 
+              <p className="text-muted-foreground">
+                {filters.search || filters.stage
                   ? 'Try adjusting your search or filters'
                   : 'Candidates will appear here once they apply to jobs'
                 }
@@ -146,10 +146,8 @@ export function CandidatesList({ className }: CandidatesListProps) {
         ) : (
           <div
             ref={parentRef}
-            className="h-full overflow-auto"
-            style={{
-              contain: 'strict',
-            }}
+            className="h-full overflow-auto bg-muted"
+           
           >
             <div
               style={{
@@ -160,7 +158,7 @@ export function CandidatesList({ className }: CandidatesListProps) {
             >
               {virtualizer.getVirtualItems().map((virtualItem) => {
                 const candidate = filteredCandidates[virtualItem.index]
-                
+
                 return (
                   <div
                     key={virtualItem.key}
@@ -185,13 +183,12 @@ export function CandidatesList({ className }: CandidatesListProps) {
             </div>
           </div>
         )}
-      </div>
-
+      </div>)}
       {/* Loading overlay */}
       {loading && (
-        <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/50 flex items-center justify-center">
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-            <RefreshCw className="h-4 w-4 animate-spin" />
+        <div className="bg-card py-12 w-full rounded-xl flex items-center justify-center my-10">
+          <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+            <RefreshCw className="size-4 animate-spin" />
             Loading candidates...
           </div>
         </div>

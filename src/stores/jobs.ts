@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { apiService, APIError } from '../services/api'
+import { ErrorHandler } from '../lib/error-handler'
 import type { JobsStore } from '../types/store'
 import type { Job, CreateJobRequest, JobFilters } from '../types/job'
 import type { PaginationState } from '../types/common'
@@ -35,11 +36,21 @@ export const useJobsStore = create<JobsStore>()(
         set({ loading: true, error: null })
         
         try {
-          const response = await apiService.getJobs({
-            page: pagination.page,
-            limit: pagination.limit,
-            filters
-          })
+          const response = await ErrorHandler.withRetry(
+            () => apiService.getJobs({
+              page: pagination.page,
+              limit: pagination.limit,
+              filters
+            }),
+            'fetch-jobs',
+            {
+              maxRetries: 3,
+              showToast: false, // Store handles its own error state
+              onError: (error, attempt) => {
+                console.log(`Fetch jobs attempt ${attempt} failed:`, error.message)
+              }
+            }
+          )
           
           set({
             jobs: response.data,
@@ -47,12 +58,20 @@ export const useJobsStore = create<JobsStore>()(
             loading: false
           })
         } catch (error) {
-          const apiError = error as APIError
+          const normalizedError = ErrorHandler.normalizeError(error)
           set({
             loading: false,
-            error: apiError.message || 'Failed to fetch jobs'
+            error: normalizedError.message
           })
-          throw error
+          
+          // Log error for monitoring
+          ErrorHandler.logError(normalizedError, { 
+            operation: 'fetchJobs',
+            filters,
+            pagination 
+          })
+          
+          throw normalizedError
         }
       },
 
@@ -82,7 +101,17 @@ export const useJobsStore = create<JobsStore>()(
         }))
         
         try {
-          const newJob = await apiService.createJob(jobData)
+          const newJob = await ErrorHandler.withRetry(
+            () => apiService.createJob(jobData),
+            `create-job-${optimisticJob.id}`,
+            {
+              maxRetries: 2,
+              showToast: true,
+              onError: (error, attempt) => {
+                console.log(`Create job attempt ${attempt} failed:`, error.message)
+              }
+            }
+          )
           
           // Replace optimistic job with real job
           set(state => ({
@@ -90,7 +119,12 @@ export const useJobsStore = create<JobsStore>()(
               job.id === optimisticJob.id ? newJob : job
             )
           }))
+          
+          // Show success notification
+          ErrorHandler.showSuccess('Job created successfully')
         } catch (error) {
+          const normalizedError = ErrorHandler.normalizeError(error)
+          
           // Rollback optimistic update
           set(state => ({
             jobs: state.jobs.filter(job => job.id !== optimisticJob.id),
@@ -98,9 +132,16 @@ export const useJobsStore = create<JobsStore>()(
               ...state.pagination,
               total: state.pagination.total - 1
             },
-            error: (error as APIError).message || 'Failed to create job'
+            error: normalizedError.message
           }))
-          throw error
+          
+          // Log error
+          ErrorHandler.logError(normalizedError, { 
+            operation: 'createJob',
+            jobData 
+          })
+          
+          throw normalizedError
         }
       },
 

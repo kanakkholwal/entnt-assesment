@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import { 
   GripVertical, 
   Trash2, 
@@ -15,9 +16,12 @@ import {
   ChevronDown,
   ChevronUp,
   Plus,
-  X
+  X,
+  AlertCircle,
+  Link
 } from 'lucide-react'
 import { QuestionTypeSelector } from './question-type-selector'
+import { ConditionalLogicBuilder } from './conditional-logic-builder'
 import type { Question, QuestionType } from '@/types/assessment'
 import { cn } from '@/lib/utils'
 
@@ -26,6 +30,7 @@ interface QuestionBuilderProps {
   onUpdate: (updates: Partial<Question>) => void
   onDelete: () => void
   isDragging?: boolean
+  availableQuestions?: Question[] // For conditional logic dependencies
 }
 
 const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
@@ -41,7 +46,8 @@ export function QuestionBuilder({
   question,
   onUpdate,
   onDelete,
-  isDragging
+  isDragging,
+  availableQuestions = []
 }: QuestionBuilderProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
@@ -147,33 +153,33 @@ export function QuestionBuilder({
 
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon_sm"
                 onClick={() => setShowSettings(!showSettings)}
-                className="h-6 w-6 p-0"
+                className="p-0"
               >
-                <Settings className="h-4 w-4" />
+                <Settings />
               </Button>
 
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon_sm"
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="h-6 w-6 p-0"
+                className="p-0"
               >
                 {isCollapsed ? (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown />
                 ) : (
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp  />
                 )}
               </Button>
 
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon_sm"
                 onClick={onDelete}
-                className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2  />
               </Button>
             </div>
           </div>
@@ -183,7 +189,7 @@ export function QuestionBuilder({
           <CardContent className="pt-0 space-y-4">
             {/* Question Type Selector */}
             <div>
-              <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+              <Label className="text-xs font-medium text-muted-foreground">
                 Question Type
               </Label>
               <QuestionTypeSelector
@@ -195,7 +201,7 @@ export function QuestionBuilder({
 
             {/* Question Description */}
             <div>
-              <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+              <Label className="text-xs font-medium text-muted-foreground">
                 Description (Optional)
               </Label>
               <Textarea
@@ -209,7 +215,7 @@ export function QuestionBuilder({
             {/* Type-specific Configuration */}
             {(question.type === 'single-choice' || question.type === 'multi-choice') && (
               <div>
-                <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                <Label className="text-xs font-medium text-muted-foreground">
                   Options
                 </Label>
                 <div className="mt-1 space-y-2">
@@ -224,11 +230,11 @@ export function QuestionBuilder({
                       {(question.options?.length || 0) > 2 && (
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon_sm"
                           onClick={() => removeOption(index)}
-                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                          className="p-0 text-red-600 hover:text-red-700"
                         >
-                          <X className="h-4 w-4" />
+                          <X />
                         </Button>
                       )}
                     </div>
@@ -239,7 +245,7 @@ export function QuestionBuilder({
                     onClick={addOption}
                     className="w-full"
                   >
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus/>
                     Add Option
                   </Button>
                 </div>
@@ -258,63 +264,201 @@ export function QuestionBuilder({
                 </div>
 
                 {/* Validation Rules */}
-                {question.type === 'numeric' && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                        Minimum Value
-                      </Label>
-                      <Input
-                        type="number"
-                        value={question.validation?.min || ''}
-                        onChange={(e) => handleValidationChange('min', Number(e.target.value))}
-                        placeholder="Min"
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                        Maximum Value
-                      </Label>
-                      <Input
-                        type="number"
-                        value={question.validation?.max || ''}
-                        onChange={(e) => handleValidationChange('max', Number(e.target.value))}
-                        placeholder="Max"
-                        className="mt-1"
-                      />
-                    </div>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-blue-500" />
+                    <Label className="text-sm font-medium">Validation Rules</Label>
                   </div>
-                )}
 
-                {(question.type === 'short-text' || question.type === 'long-text') && (
+                  {/* Text validation */}
+                  {(question.type === 'short-text' || question.type === 'long-text') && (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">
+                            Minimum Length
+                          </Label>
+                          <Input
+                            type="number"
+                            value={question.validation?.minLength || ''}
+                            onChange={(e) => handleValidationChange('minLength', Number(e.target.value) || undefined)}
+                            placeholder="Min characters"
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">
+                            Maximum Length
+                          </Label>
+                          <Input
+                            type="number"
+                            value={question.validation?.maxLength || ''}
+                            onChange={(e) => handleValidationChange('maxLength', Number(e.target.value) || undefined)}
+                            placeholder="Max characters"
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">
+                          Pattern (Regex)
+                        </Label>
+                        <Input
+                          value={question.validation?.pattern || ''}
+                          onChange={(e) => handleValidationChange('pattern', e.target.value || undefined)}
+                          placeholder="^[A-Za-z0-9]+$"
+                          className="mt-1"
+                        />
+                      </div>
+                      {question.validation?.pattern && (
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">
+                            Pattern Error Message
+                          </Label>
+                          <Input
+                            value={question.validation?.patternMessage || ''}
+                            onChange={(e) => handleValidationChange('patternMessage', e.target.value || undefined)}
+                            placeholder="Please enter a valid format"
+                            className="mt-1"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Numeric validation */}
+                  {question.type === 'numeric' && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">
+                          Minimum Value
+                        </Label>
+                        <Input
+                          type="number"
+                          value={question.validation?.min ?? ''}
+                          onChange={(e) => handleValidationChange('min', e.target.value ? Number(e.target.value) : undefined)}
+                          placeholder="Min"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">
+                          Maximum Value
+                        </Label>
+                        <Input
+                          type="number"
+                          value={question.validation?.max ?? ''}
+                          onChange={(e) => handleValidationChange('max', e.target.value ? Number(e.target.value) : undefined)}
+                          placeholder="Max"
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Multi-choice validation */}
+                  {question.type === 'multi-choice' && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">
+                          Minimum Selections
+                        </Label>
+                        <Input
+                          type="number"
+                          value={question.validation?.min ?? ''}
+                          onChange={(e) => handleValidationChange('min', e.target.value ? Number(e.target.value) : undefined)}
+                          placeholder="Min selections"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">
+                          Maximum Selections
+                        </Label>
+                        <Input
+                          type="number"
+                          value={question.validation?.max ?? ''}
+                          onChange={(e) => handleValidationChange('max', e.target.value ? Number(e.target.value) : undefined)}
+                          placeholder="Max selections"
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* File upload validation */}
+                  {question.type === 'file-upload' && (
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">
+                          Accepted File Types
+                        </Label>
+                        <Input
+                          value={question.validation?.fileTypes?.join(', ') || ''}
+                          onChange={(e) => handleValidationChange('fileTypes', e.target.value ? e.target.value.split(',').map(s => s.trim()) : undefined)}
+                          placeholder="pdf, doc, docx, jpg, png"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">
+                            Min File Size (MB)
+                          </Label>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            value={question.validation?.minFileSize ?? ''}
+                            onChange={(e) => handleValidationChange('minFileSize', e.target.value ? Number(e.target.value) : undefined)}
+                            placeholder="0.1"
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">
+                            Max File Size (MB)
+                          </Label>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            value={question.validation?.maxFileSize ?? ''}
+                            onChange={(e) => handleValidationChange('maxFileSize', e.target.value ? Number(e.target.value) : undefined)}
+                            placeholder="10"
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Custom validation message */}
                   <div>
-                    <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                      Maximum Length
+                    <Label className="text-xs font-medium text-muted-foreground">
+                      Custom Error Message
                     </Label>
                     <Input
-                      type="number"
-                      value={question.validation?.maxLength || ''}
-                      onChange={(e) => handleValidationChange('maxLength', Number(e.target.value))}
-                      placeholder="Max characters"
+                      value={question.validation?.customMessage || ''}
+                      onChange={(e) => handleValidationChange('customMessage', e.target.value || undefined)}
+                      placeholder="Custom error message for validation failures"
                       className="mt-1"
                     />
                   </div>
-                )}
+                </div>
 
-                {question.type === 'file-upload' && (
-                  <div>
-                    <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                      Accepted File Types
-                    </Label>
-                    <Input
-                      value={question.validation?.acceptedTypes?.join(', ') || ''}
-                      onChange={(e) => handleValidationChange('acceptedTypes', e.target.value.split(',').map(s => s.trim()))}
-                      placeholder="pdf, doc, docx, jpg, png"
-                      className="mt-1"
-                    />
+                {/* Conditional Logic */}
+                <Separator />
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Link className="size-4 text-purple-500" />
+                    <Label className="text-sm font-medium">Conditional Logic</Label>
                   </div>
-                )}
+                  
+                  <ConditionalLogicBuilder
+                    rule={question.conditionalLogic}
+                    availableQuestions={availableQuestions.filter(q => q.id !== question.id)}
+                    onChange={(rule) => onUpdate({ conditionalLogic: rule })}
+                  />
+                </div>
               </div>
             )}
           </CardContent>

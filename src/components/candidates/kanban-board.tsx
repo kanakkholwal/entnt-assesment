@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { RefreshCw, GripVertical } from 'lucide-react'
+import { RefreshCw, GripVertical, LoaderCircle } from 'lucide-react'
 import { useCandidatesStore } from '@/stores/candidates'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
@@ -104,7 +104,7 @@ function DraggableCandidateCard({ candidate, onClick, isDragging }: DraggableCan
                 <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
                   {candidate.name}
                 </h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                <p className="text-xs text-muted-foreground dark:text-gray-400 truncate">
                   {candidate.email}
                 </p>
               </div>
@@ -173,7 +173,7 @@ function KanbanColumn({ stage, candidates, onCandidateClick, activeId }: KanbanC
               
               {candidates.length === 0 && (
                 <div className={cn(
-                  "flex items-center justify-center h-32 text-gray-400 dark:text-gray-600 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg transition-colors",
+                  "flex items-center justify-center h-32 text-muted-foreground border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg transition-colors",
                   isOver && "border-blue-400 bg-blue-50/50 dark:bg-blue-900/20"
                 )}>
                   <p className="text-sm">
@@ -291,38 +291,18 @@ export function KanbanBoard({ className }: KanbanBoardProps) {
     fetchCandidates()
   }
 
-  if (error) {
-    return (
-      <div className={cn("flex flex-col items-center justify-center py-12", className)}>
-        <div className="text-center">
-          <div className="text-red-500 mb-2">
-            <RefreshCw className="h-12 w-12 mx-auto" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Failed to load candidates
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            {error}
-          </p>
-          <Button onClick={handleRefresh} variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Try again
-          </Button>
-        </div>
-      </div>
-    )
-  }
+
 
   return (
     <div className={cn("flex flex-col h-full", className)}>
       {/* Header */}
-      <div className="flex-shrink-0 p-4 border-b bg-white dark:bg-gray-900">
+      <div className="flex-shrink-0 p-4 border-b bg-card">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-lg font-semibold text-foreground">
               Candidate Pipeline
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               Drag candidates between stages to update their status
             </p>
           </div>
@@ -333,14 +313,30 @@ export function KanbanBoard({ className }: KanbanBoardProps) {
             size="sm"
             disabled={loading || isUpdating}
           >
-            <RefreshCw className={cn("h-4 w-4 mr-2", (loading || isUpdating) && "animate-spin")} />
+            <RefreshCw className={cn((loading || isUpdating) && "animate-spin")} />
             {isUpdating ? 'Updating...' : 'Refresh'}
           </Button>
         </div>
       </div>
 
       {/* Kanban Board */}
-      <div className="flex-1 overflow-hidden">
+      {!loading && (error ? <div className={cn("flex flex-col items-center justify-center py-12", className)}>
+        <div className="text-center">
+          <div className="text-red-500 mb-2">
+            <RefreshCw className="size-12 mx-auto" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            Failed to load candidates
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            {error}
+          </p>
+          <Button onClick={handleRefresh} variant="outline">
+            <RefreshCw />
+            Try again
+          </Button>
+        </div>
+      </div>:(<div className="flex-1 overflow-hidden">
         <div className="h-full overflow-x-auto">
           <div className="flex gap-4 p-4 min-w-max h-full">
             <DndContext
@@ -372,15 +368,15 @@ export function KanbanBoard({ className }: KanbanBoardProps) {
             </DndContext>
           </div>
         </div>
-      </div>
+      </div>))}
 
       {/* Loading overlay */}
       {(loading || isUpdating) && (
-        <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/50 flex items-center justify-center">
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-            <RefreshCw className="h-4 w-4 animate-spin" />
+        <div className="bg-card flex items-center justify-center flex-col py-12 rounded-xl my-10">
+            <LoaderCircle className="size-10 mb-4 text-primary animate-spin mx-auto" />
+            <p className='text-foreground text-sm'>
             {isUpdating ? 'Updating candidate...' : 'Loading candidates...'}
-          </div>
+            </p>
         </div>
       )}
     </div>

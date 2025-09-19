@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
-import { ArrowLeft, Mail, User, MessageSquare } from 'lucide-react'
+import { ArrowLeft, Mail, User, MessageSquare, FileText } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { useCandidatesStore } from '@/stores/candidates'
 import { useJobsStore } from '@/stores/jobs'
+import { useAssessmentsStore } from '@/stores/assessments'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CandidateTimeline } from './candidate-timeline'
@@ -37,37 +38,40 @@ interface CandidateProfileProps {
     candidateId?: string
 }
 
-export function CandidateProfile({ candidateId: propCandidateId }: CandidateProfileProps) {
-    const params = useParams({ from: '/candidates/$id' })
-    const candidateId = propCandidateId || params.id
+export function CandidateProfile({ candidateId }: CandidateProfileProps) {
+    if (!candidateId) {
+        throw new Error('CandidateProfile requires a candidateId prop')
+    }
 
     const [candidate, setCandidate] = useState<Candidate | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
-    const { candidates, fetchCandidates } = useCandidatesStore()
+    const { fetchCandidates, getCandidateById } = useCandidatesStore()
     const { jobs, fetchJobs } = useJobsStore()
+    const { assessments, fetchAssessment } = useAssessmentsStore()
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 setLoading(true)
                 setError(null)
-
-                // Fetch candidates if not already loaded
-                if (candidates.length === 0) {
-                    await fetchCandidates()
-                }
-
-                // Fetch jobs if not already loaded
-                if (jobs.length === 0) {
-                    await fetchJobs()
-                }
-
-                // Find the candidate
-                const foundCandidate = candidates.find(c => c.id === candidateId)
+                
+                // Ensure candidates and jobs are loaded
+                await Promise.all([
+                    fetchCandidates(),
+                    fetchJobs()
+                ])
+                
+                const foundCandidate = await getCandidateById(candidateId)
                 if (foundCandidate) {
                     setCandidate(foundCandidate)
+                    // Fetch assessment for this candidate's job
+                    try {
+                        await fetchAssessment(foundCandidate.jobId)
+                    } catch (assessmentError) {
+                        console.log('No assessment found for job:', foundCandidate.jobId)
+                    }
                 } else {
                     setError('Candidate not found')
                 }
@@ -80,7 +84,7 @@ export function CandidateProfile({ candidateId: propCandidateId }: CandidateProf
         }
 
         loadData()
-    }, [candidateId, candidates, jobs, fetchCandidates, fetchJobs])
+    }, [candidateId, getCandidateById, fetchCandidates, fetchJobs, fetchAssessment])
 
     const getInitials = (name: string) => {
         return name
@@ -117,19 +121,19 @@ export function CandidateProfile({ candidateId: propCandidateId }: CandidateProf
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
                     <Button variant="outline" size="sm" asChild>
                         <Link to="/candidates">
                             <ArrowLeft className="h-4 w-4 mr-2" />
                             Back to Candidates
                         </Link>
                     </Button>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <h1 className="text-2xl font-bold text-foreground">
                             {candidate.name}
                         </h1>
-                        <p className="text-gray-600 dark:text-gray-400">
+                        <p className="text-muted-foreground">
                             Candidate Profile
                         </p>
                     </div>
@@ -163,7 +167,7 @@ export function CandidateProfile({ candidateId: propCandidateId }: CandidateProf
                                 </Avatar>
                                 <div>
                                     <h3 className="font-semibold text-lg">{candidate.name}</h3>
-                                    <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                                    <div className="flex items-center gap-1 text-muted-foreground ">
                                         <Mail className="h-4 w-4" />
                                         <span className="text-sm">{candidate.email}</span>
                                     </div>
@@ -174,7 +178,7 @@ export function CandidateProfile({ candidateId: propCandidateId }: CandidateProf
 
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                    <span className="text-sm font-medium text-muted-foreground ">
                                         Position
                                     </span>
                                     <span className="text-sm font-semibold">
@@ -183,7 +187,7 @@ export function CandidateProfile({ candidateId: propCandidateId }: CandidateProf
                                 </div>
 
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                    <span className="text-sm font-medium text-muted-foreground">
                                         Current Stage
                                     </span>
                                     <Badge
@@ -195,7 +199,7 @@ export function CandidateProfile({ candidateId: propCandidateId }: CandidateProf
                                 </div>
 
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                    <span className="text-sm font-medium text-muted-foreground">
                                         Applied
                                     </span>
                                     <div className="text-right">
@@ -209,7 +213,7 @@ export function CandidateProfile({ candidateId: propCandidateId }: CandidateProf
                                 </div>
 
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                    <span className="text-sm font-medium text-muted-foreground ">
                                         Notes
                                     </span>
                                     <div className="flex items-center gap-1">
@@ -222,6 +226,45 @@ export function CandidateProfile({ candidateId: propCandidateId }: CandidateProf
                             </div>
                         </CardContent>
                     </Card>
+
+                    {/* Assessment Section */}
+                    {(() => {
+                        const jobAssessment = Object.values(assessments).find(a => a.jobId === candidate.jobId)
+                        if (jobAssessment) {
+                            return (
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <FileText className="h-5 w-5" />
+                                            Assessment
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div>
+                                            <h4 className="font-medium text-sm">{jobAssessment.title}</h4>
+                                            <p className="text-sm text-muted-foreground  mt-1">
+                                                Complete the assessment for this position to proceed with your application.
+                                            </p>
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                            {jobAssessment.sections.length} section{jobAssessment.sections.length !== 1 ? 's' : ''} • {' '}
+                                            {jobAssessment.sections.reduce((total, section) => total + section.questions.length, 0)} questions
+                                        </div>
+                                        <Button asChild className="w-full">
+                                            <Link to="/take-assessment/$assessmentId/$candidateId" 
+                                                  params={{ 
+                                                    assessmentId: jobAssessment.id, 
+                                                    candidateId: candidate.id 
+                                                  }}>
+                                                Take Assessment
+                                            </Link>
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            )
+                        }
+                        return null
+                    })()}
 
                     {/* Notes Section */}
                     <CandidateNotes candidate={candidate} />

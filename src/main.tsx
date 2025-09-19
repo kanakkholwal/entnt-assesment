@@ -6,13 +6,12 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 
 import './styles.css'
-import reportWebVitals from './reportWebVitals.ts'
 import './debug' // Import debug utilities
 
 // Initialize MSW (non-blocking)
 async function enableMocking() {
   if (process.env.NODE_ENV !== 'development') {
-    return
+    return 
   }
 
   try {
@@ -20,10 +19,13 @@ async function enableMocking() {
     const { worker, initializeDataOnce } = await import('./mocks/browser')
 
     console.log('[MSW] Starting worker...')
-    // Start the worker with quiet mode to reduce console noise
+    // Start the worker with proper configuration
     await worker.start({
-      onUnhandledRequest: 'bypass',
-      quiet: false
+      onUnhandledRequest: 'warn',
+      quiet: false,
+      serviceWorker: {
+        url: '/mockServiceWorker.js'
+      }
     })
     console.log('[MSW] Worker started successfully')
 
@@ -32,6 +34,9 @@ async function enableMocking() {
     await initializeDataOnce()
     
     console.log('[MSW] Mock Service Worker initialized successfully')
+    
+    // Add a global flag to indicate MSW is ready
+    ;(window as any).__MSW_READY__ = true
   } catch (error) {
     console.error('[MSW] Failed to initialize Mock Service Worker:', error)
     console.error('[MSW] Error details:', error instanceof Error ? error.message : String(error))
@@ -55,24 +60,36 @@ declare module '@tanstack/react-router' {
     router: typeof router
   }
 }
-
-// Render the app immediately and initialize MSW in parallel
-const rootElement = document.getElementById('app')
-if (rootElement && !rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement)
-  root.render(
-    <StrictMode>
-      <RouterProvider router={router} />
-    </StrictMode>,
-  )
+// Initialize MSW first, then render the app
+async function startApp() {
+  // Initialize MSW first
+  await enableMocking()
+  
+  // Then render the app
+  const rootElement = document.getElementById('app')
+  if (rootElement && !rootElement.innerHTML) {
+    const root = ReactDOM.createRoot(rootElement)
+    root.render(
+      <StrictMode>
+        <RouterProvider router={router} />
+      </StrictMode>,
+    )
+  }
 }
 
-// Initialize MSW in the background (non-blocking) with a small delay
-setTimeout(() => {
-  enableMocking()
-}, 100)
+// Start the application
+startApp().catch(error => {
+  console.error('Failed to start application:', error)
+  // Render app anyway if MSW fails
+  const rootElement = document.getElementById('app')
+  if (rootElement && !rootElement.innerHTML) {
+    const root = ReactDOM.createRoot(rootElement)
+    root.render(
+      <StrictMode>
+        <RouterProvider router={router} />
+      </StrictMode>,
+    )
+  }
+})
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals()
+

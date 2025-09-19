@@ -15,9 +15,13 @@ import { Route as AssessmentsRouteImport } from './routes/assessments'
 import { Route as R500RouteImport } from './routes/500'
 import { Route as R404RouteImport } from './routes/404'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
-import { Route as CandidatesIdRouteImport } from './routes/candidates.$id'
-import { Route as AssessmentsJobIdRouteImport } from './routes/assessments.$jobId'
+import { Route as JobsIndexRouteImport } from './routes/jobs/index'
+import { Route as CandidatesIndexRouteImport } from './routes/candidates/index'
+import { Route as AssessmentsIndexRouteImport } from './routes/assessments/index'
+import { Route as JobsJobIdRouteImport } from './routes/jobs/$jobId'
+import { Route as CandidatesIdRouteImport } from './routes/candidates/$id'
+import { Route as AssessmentsJobIdRouteImport } from './routes/assessments/$jobId'
+import { Route as TakeAssessmentAssessmentIdCandidateIdRouteImport } from './routes/take-assessment.$assessmentId.$candidateId'
 
 const JobsRoute = JobsRouteImport.update({
   id: '/jobs',
@@ -49,6 +53,21 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JobsIndexRoute = JobsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => JobsRoute,
+} as any)
+const CandidatesIndexRoute = CandidatesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CandidatesRoute,
+} as any)
+const AssessmentsIndexRoute = AssessmentsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AssessmentsRoute,
+} as any)
 const JobsJobIdRoute = JobsJobIdRouteImport.update({
   id: '/$jobId',
   path: '/$jobId',
@@ -64,6 +83,12 @@ const AssessmentsJobIdRoute = AssessmentsJobIdRouteImport.update({
   path: '/$jobId',
   getParentRoute: () => AssessmentsRoute,
 } as any)
+const TakeAssessmentAssessmentIdCandidateIdRoute =
+  TakeAssessmentAssessmentIdCandidateIdRouteImport.update({
+    id: '/take-assessment/$assessmentId/$candidateId',
+    path: '/take-assessment/$assessmentId/$candidateId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,17 +100,22 @@ export interface FileRoutesByFullPath {
   '/assessments/$jobId': typeof AssessmentsJobIdRoute
   '/candidates/$id': typeof CandidatesIdRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
+  '/assessments/': typeof AssessmentsIndexRoute
+  '/candidates/': typeof CandidatesIndexRoute
+  '/jobs/': typeof JobsIndexRoute
+  '/take-assessment/$assessmentId/$candidateId': typeof TakeAssessmentAssessmentIdCandidateIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/404': typeof R404Route
   '/500': typeof R500Route
-  '/assessments': typeof AssessmentsRouteWithChildren
-  '/candidates': typeof CandidatesRouteWithChildren
-  '/jobs': typeof JobsRouteWithChildren
   '/assessments/$jobId': typeof AssessmentsJobIdRoute
   '/candidates/$id': typeof CandidatesIdRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
+  '/assessments': typeof AssessmentsIndexRoute
+  '/candidates': typeof CandidatesIndexRoute
+  '/jobs': typeof JobsIndexRoute
+  '/take-assessment/$assessmentId/$candidateId': typeof TakeAssessmentAssessmentIdCandidateIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +128,10 @@ export interface FileRoutesById {
   '/assessments/$jobId': typeof AssessmentsJobIdRoute
   '/candidates/$id': typeof CandidatesIdRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
+  '/assessments/': typeof AssessmentsIndexRoute
+  '/candidates/': typeof CandidatesIndexRoute
+  '/jobs/': typeof JobsIndexRoute
+  '/take-assessment/$assessmentId/$candidateId': typeof TakeAssessmentAssessmentIdCandidateIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,17 +145,22 @@ export interface FileRouteTypes {
     | '/assessments/$jobId'
     | '/candidates/$id'
     | '/jobs/$jobId'
+    | '/assessments/'
+    | '/candidates/'
+    | '/jobs/'
+    | '/take-assessment/$assessmentId/$candidateId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/404'
     | '/500'
-    | '/assessments'
-    | '/candidates'
-    | '/jobs'
     | '/assessments/$jobId'
     | '/candidates/$id'
     | '/jobs/$jobId'
+    | '/assessments'
+    | '/candidates'
+    | '/jobs'
+    | '/take-assessment/$assessmentId/$candidateId'
   id:
     | '__root__'
     | '/'
@@ -133,6 +172,10 @@ export interface FileRouteTypes {
     | '/assessments/$jobId'
     | '/candidates/$id'
     | '/jobs/$jobId'
+    | '/assessments/'
+    | '/candidates/'
+    | '/jobs/'
+    | '/take-assessment/$assessmentId/$candidateId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -142,6 +185,7 @@ export interface RootRouteChildren {
   AssessmentsRoute: typeof AssessmentsRouteWithChildren
   CandidatesRoute: typeof CandidatesRouteWithChildren
   JobsRoute: typeof JobsRouteWithChildren
+  TakeAssessmentAssessmentIdCandidateIdRoute: typeof TakeAssessmentAssessmentIdCandidateIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -188,6 +232,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/jobs/': {
+      id: '/jobs/'
+      path: '/'
+      fullPath: '/jobs/'
+      preLoaderRoute: typeof JobsIndexRouteImport
+      parentRoute: typeof JobsRoute
+    }
+    '/candidates/': {
+      id: '/candidates/'
+      path: '/'
+      fullPath: '/candidates/'
+      preLoaderRoute: typeof CandidatesIndexRouteImport
+      parentRoute: typeof CandidatesRoute
+    }
+    '/assessments/': {
+      id: '/assessments/'
+      path: '/'
+      fullPath: '/assessments/'
+      preLoaderRoute: typeof AssessmentsIndexRouteImport
+      parentRoute: typeof AssessmentsRoute
+    }
     '/jobs/$jobId': {
       id: '/jobs/$jobId'
       path: '/$jobId'
@@ -209,15 +274,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssessmentsJobIdRouteImport
       parentRoute: typeof AssessmentsRoute
     }
+    '/take-assessment/$assessmentId/$candidateId': {
+      id: '/take-assessment/$assessmentId/$candidateId'
+      path: '/take-assessment/$assessmentId/$candidateId'
+      fullPath: '/take-assessment/$assessmentId/$candidateId'
+      preLoaderRoute: typeof TakeAssessmentAssessmentIdCandidateIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AssessmentsRouteChildren {
   AssessmentsJobIdRoute: typeof AssessmentsJobIdRoute
+  AssessmentsIndexRoute: typeof AssessmentsIndexRoute
 }
 
 const AssessmentsRouteChildren: AssessmentsRouteChildren = {
   AssessmentsJobIdRoute: AssessmentsJobIdRoute,
+  AssessmentsIndexRoute: AssessmentsIndexRoute,
 }
 
 const AssessmentsRouteWithChildren = AssessmentsRoute._addFileChildren(
@@ -226,10 +300,12 @@ const AssessmentsRouteWithChildren = AssessmentsRoute._addFileChildren(
 
 interface CandidatesRouteChildren {
   CandidatesIdRoute: typeof CandidatesIdRoute
+  CandidatesIndexRoute: typeof CandidatesIndexRoute
 }
 
 const CandidatesRouteChildren: CandidatesRouteChildren = {
   CandidatesIdRoute: CandidatesIdRoute,
+  CandidatesIndexRoute: CandidatesIndexRoute,
 }
 
 const CandidatesRouteWithChildren = CandidatesRoute._addFileChildren(
@@ -238,10 +314,12 @@ const CandidatesRouteWithChildren = CandidatesRoute._addFileChildren(
 
 interface JobsRouteChildren {
   JobsJobIdRoute: typeof JobsJobIdRoute
+  JobsIndexRoute: typeof JobsIndexRoute
 }
 
 const JobsRouteChildren: JobsRouteChildren = {
   JobsJobIdRoute: JobsJobIdRoute,
+  JobsIndexRoute: JobsIndexRoute,
 }
 
 const JobsRouteWithChildren = JobsRoute._addFileChildren(JobsRouteChildren)
@@ -253,6 +331,8 @@ const rootRouteChildren: RootRouteChildren = {
   AssessmentsRoute: AssessmentsRouteWithChildren,
   CandidatesRoute: CandidatesRouteWithChildren,
   JobsRoute: JobsRouteWithChildren,
+  TakeAssessmentAssessmentIdCandidateIdRoute:
+    TakeAssessmentAssessmentIdCandidateIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

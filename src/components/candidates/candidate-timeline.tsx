@@ -30,7 +30,7 @@ const timelineColors = {
   note_added: 'text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-300',
   assessment_completed: 'text-purple-600 bg-purple-100 dark:bg-purple-900 dark:text-purple-300',
   interview_scheduled: 'text-orange-600 bg-orange-100 dark:bg-orange-900 dark:text-orange-300',
-  default: 'text-gray-600 bg-gray-100 dark:bg-gray-800 dark:text-gray-300'
+  default: 'text-muted-foreground bg-gray-100 dark:bg-gray-800 dark:text-gray-300'
 }
 
 export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
@@ -109,7 +109,7 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
       </CardHeader>
       <CardContent>
         {sortedTimeline.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-8 text-muted-foreground">
             <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No timeline events yet</p>
           </div>
@@ -130,7 +130,7 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                   <div className="flex gap-4">
                     {/* Icon */}
                     <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${colorClass}`}>
-                      <Icon className="h-5 w-5" />
+                      <Icon className="size-5" />
                     </div>
                     
                     {/* Content */}
@@ -144,12 +144,12 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                             </span>
                           </div>
                           
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                          <p className="text-sm font-medium text-muted-foreground mb-1">
                             {formatTimelineDescription(event)}
                           </p>
                           
                           {event.createdBy && (
-                            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
                               <User className="h-3 w-3" />
                               <span>by {event.createdBy}</span>
                             </div>
@@ -157,10 +157,10 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                           
                           {/* Additional metadata */}
                           {event.metadata && Object.keys(event.metadata).length > 0 && (
-                            <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded text-xs">
+                            <div className="mt-2 p-2 bg-input rounded text-xs">
                               {Object.entries(event.metadata).map(([key, value]) => (
                                 <div key={key} className="flex justify-between">
-                                  <span className="text-gray-600 dark:text-gray-400 capitalize">
+                                  <span className="text-muted-foreground dark:text-gray-400 capitalize">
                                     {key.replace(/([A-Z])/g, ' $1').toLowerCase()}:
                                   </span>
                                   <span className="font-medium">

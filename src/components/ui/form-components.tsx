@@ -119,9 +119,12 @@ export function FormActions({ children, className, align = "right" }: FormAction
   )
 }
 
-interface SubmitButtonProps extends React.ComponentProps<typeof Button> {
+interface SubmitButtonProps {
   isLoading?: boolean
   loadingText?: string
+  children?: React.ReactNode
+  disabled?: boolean
+  [key: string]: any
 }
 
 export function SubmitButton({ 

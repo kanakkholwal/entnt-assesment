@@ -22,7 +22,7 @@ function ServerErrorPage() {
             <div className="space-y-2">
               <h1 className="text-6xl font-bold text-red-600">500</h1>
               <h2 className="text-2xl font-semibold text-gray-700">Server Error</h2>
-              <p className="text-gray-600 max-w-md mx-auto">
+              <p className="text-muted-foreground max-w-md mx-auto">
                 Something went wrong on our end. Please try again later or contact support if the problem persists.
               </p>
             </div>

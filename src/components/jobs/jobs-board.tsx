@@ -1,20 +1,21 @@
 import { useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Plus, RefreshCw } from 'lucide-react'
 import { useJobsStore } from '@/stores/jobs'
+import { useErrorHandler, useNetworkStatus } from '@/hooks'
+import { LoadingState, JobCardSkeleton } from '@/components/ui/loading-states'
+import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { JobCard } from './job-card'
 import { JobSearch } from './job-search'
 import { JobFilters } from './job-filters'
 import { JobPagination } from './job-pagination'
-import type { Job } from '@/types/job'
+import type { Job, UpdateJobRequest } from '@/types/job'
 
 interface JobsBoardProps {
   onJobSelect?: (job: Job) => void
   onCreateJob?: () => void
-  onEditJob?: (job: Job) => void
+  onEditJob?: (job: UpdateJobRequest) => Promise<void>
 }
 
 export function JobsBoard({ onJobSelect, onCreateJob, onEditJob }: JobsBoardProps) {
@@ -30,10 +31,13 @@ export function JobsBoard({ onJobSelect, onCreateJob, onEditJob }: JobsBoardProp
     updateJob,
   } = useJobsStore()
 
+  const { handleError, retry } = useErrorHandler()
+  const { isOnline } = useNetworkStatus()
+
   // Fetch jobs on mount and when filters/pagination change
   useEffect(() => {
-    fetchJobs()
-  }, [fetchJobs])
+    fetchJobs().catch(handleError)
+  }, [fetchJobs, handleError])
 
   // Get unique tags from all jobs for filter options
   const availableTags = useMemo(() => {
@@ -56,41 +60,32 @@ export function JobsBoard({ onJobSelect, onCreateJob, onEditJob }: JobsBoardProp
   const handleToggleJobStatus = async (job: Job) => {
     try {
       const newStatus = job.status === 'active' ? 'archived' : 'active'
-      await updateJob(job.id, { status: newStatus })
+      await retry(
+        () => updateJob(job.id, { status: newStatus }),
+        `toggle-job-status-${job.id}`,
+        2
+      )
     } catch (error) {
-      // Error is handled by the store
+      // Error is already handled by retry mechanism
       console.error('Failed to toggle job status:', error)
     }
   }
 
-  const handleRefresh = () => {
-    fetchJobs()
+  const handleRefresh = async () => {
+    try {
+      await retry(
+        () => fetchJobs(),
+        'refresh-jobs',
+        3
+      )
+    } catch (error) {
+      // Error is already handled by retry mechanism
+      console.error('Failed to refresh jobs:', error)
+    }
   }
 
-  const renderJobsGrid = () => {
-    if (loading && jobs.length === 0) {
-      return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i}>
-              <div className="p-6">
-                <div className="space-y-3">
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
-                  <Skeleton className="h-16 w-full" />
-                  <div className="flex gap-2">
-                    <Skeleton className="h-5 w-16" />
-                    <Skeleton className="h-5 w-20" />
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )
-    }
-
-    if (jobs.length === 0) {
+  const renderJobsContent = () => {
+    if (jobs.length === 0 && !loading && !error) {
       return (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
@@ -116,17 +111,26 @@ export function JobsBoard({ onJobSelect, onCreateJob, onEditJob }: JobsBoardProp
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {jobs.map((job) => (
-          <JobCard
-            key={job.id}
-            job={job}
-            onEdit={onEditJob}
-            onToggleStatus={handleToggleJobStatus}
-            onView={onJobSelect}
-          />
+          <ErrorBoundary key={job.id} level="component">
+            <JobCard
+              job={job}
+              onEdit={onEditJob || (() => Promise.resolve())}
+              onToggleStatus={handleToggleJobStatus}
+              onView={onJobSelect}
+            />
+          </ErrorBoundary>
         ))}
       </div>
     )
   }
+
+  const renderSkeletonGrid = () => (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <JobCardSkeleton key={i} />
+      ))}
+    </div>
+  )
 
   return (
     <div className="space-y-6">
@@ -176,36 +180,40 @@ export function JobsBoard({ onJobSelect, onCreateJob, onEditJob }: JobsBoardProp
         />
       </div>
 
-      {/* Error Display */}
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>
-            {error}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              className="ml-2"
-            >
-              Try Again
+      {/* Jobs Grid with Enhanced Error Handling */}
+      <LoadingState
+        isLoading={loading}
+        error={error}
+        isEmpty={jobs.length === 0}
+        isOffline={!isOnline}
+        onRetry={handleRefresh}
+        skeletonComponent={renderSkeletonGrid()}
+        emptyState={{
+          title: 'No jobs found',
+          description: filters.search || filters.status !== 'all' || (filters.tags?.length ?? 0) > 0
+            ? 'Try adjusting your filters to see more results.'
+            : 'Get started by creating your first job posting.',
+          action: onCreateJob ? (
+            <Button onClick={onCreateJob}>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Job
             </Button>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Jobs Grid */}
-      <div className="relative">
-        {loading && jobs.length > 0 && (
-          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
-            <div className="flex items-center gap-2 bg-background border rounded-lg px-4 py-2 shadow-lg">
-              <RefreshCw className="h-4 w-4 animate-spin" />
-              <span className="text-sm">Updating...</span>
+          ) : undefined
+        }}
+      >
+        <div className="relative">
+          {loading && jobs.length > 0 && (
+            <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
+              <div className="flex items-center gap-2 bg-background border rounded-lg px-4 py-2 shadow-lg">
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Updating...</span>
+              </div>
             </div>
-          </div>
-        )}
-        
-        {renderJobsGrid()}
-      </div>
+          )}
+          
+          {renderJobsContent()}
+        </div>
+      </LoadingState>
 
       {/* Pagination */}
       {pagination.total > 0 && (
