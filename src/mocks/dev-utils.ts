@@ -11,17 +11,17 @@ declare global {
       // Testing
       runTests: () => Promise<void>
       testAPI: typeof apiService
-      
+
       // Data management
       seedData: () => Promise<void>
       clearData: () => Promise<void>
       resetData: () => Promise<void>
-      
+
       // Configuration
       getConfig: () => typeof MOCK_CONFIG
       setErrorRate: (rate: number) => void
       setLogging: (enabled: boolean) => void
-      
+
       // Quick API tests
       getJobs: (params?: any) => Promise<any>
       getCandidates: (params?: any) => Promise<any>
@@ -32,17 +32,17 @@ declare global {
 
 // Initialize development utilities
 export const initDevUtils = (): void => {
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  if (typeof window !== 'undefined') {
     window.mswUtils = {
       // Testing
       runTests: runAllMSWTests,
       testAPI: apiService,
-      
+
       // Data management
       seedData: seedMockData,
       clearData: clearMockData,
       resetData: resetMockData,
-      
+
       // Configuration
       getConfig: () => MOCK_CONFIG,
       setErrorRate: (rate: number) => {
@@ -53,14 +53,15 @@ export const initDevUtils = (): void => {
         MOCK_CONFIG.enableLogging = enabled
         console.log(`[MSW] Logging ${enabled ? 'enabled' : 'disabled'}`)
       },
-      
+
       // Quick API tests
       getJobs: (params = {}) => apiService.getJobs({ page: 1, limit: 10, ...params }),
       getCandidates: (params = {}) => apiService.getCandidates({ page: 1, limit: 10, ...params }),
       getAssessments: (params = {}) => apiService.getAssessments({ page: 1, limit: 10, ...params })
     }
 
-    console.log(`
+    if (process.env.NODE_ENV === 'development')
+      console.log(`
 🔧 MSW Development Utils Available!
 
 Use these commands in the browser console:

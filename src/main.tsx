@@ -10,9 +10,9 @@ import './debug' // Import debug utilities
 
 // Initialize MSW (non-blocking)
 async function enableMocking() {
-  if (process.env.NODE_ENV !== 'development') {
-    return 
-  }
+  // if (process.env.NODE_ENV !== 'development') {
+  //   return 
+  // }
 
   try {
     console.log('[MSW] Starting Mock Service Worker initialization...')
@@ -33,10 +33,10 @@ async function enableMocking() {
     // Initialize mock data (this will handle database initialization internally)
     await initializeDataOnce()
     
-    console.log('[MSW] Mock Service Worker initialized successfully')
+    console.log('[MSW] Mock Service Worker initialized successfully');
     
     // Add a global flag to indicate MSW is ready
-    ;(window as any).__MSW_READY__ = true
+    (window as any).__MSW_READY__ = true
   } catch (error) {
     console.error('[MSW] Failed to initialize Mock Service Worker:', error)
     console.error('[MSW] Error details:', error instanceof Error ? error.message : String(error))

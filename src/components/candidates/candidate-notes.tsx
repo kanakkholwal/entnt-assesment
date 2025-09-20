@@ -14,6 +14,7 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { useCandidatesStore } from '@/stores/candidates'
 import { toast } from 'sonner'
 import type { Candidate } from '@/types/candidate'
+import { cn } from '@/lib/utils'
 
 interface CandidateNotesProps {
   candidate: Candidate
@@ -195,13 +196,13 @@ export function CandidateNotes({ candidate }: CandidateNotesProps) {
             
             {/* Mention Suggestions */}
             {showMentions && filteredUsers.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-48 overflow-y-auto">
+              <div className="absolute z-10 w-full mt-1 bg-popover border rounded-md shadow-lg max-h-48 overflow-y-auto">
                 {filteredUsers.map((user, index) => (
                   <button
                     key={user.id}
-                    className={`w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 ${
-                      index === selectedMentionIndex ? 'bg-gray-100 dark:bg-gray-700' : ''
-                    }`}
+                    className={cn('w-full px-3 py-2 text-left hover:accent flex items-center gap-2',
+                      index === selectedMentionIndex ? 'bg-primary/10' : ''
+                    )}
                     onClick={() => insertMention(user)}
                   >
                     <Avatar className="h-6 w-6">

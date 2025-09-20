@@ -49,7 +49,7 @@ interface ContainerProps {
   size?: "sm" | "md" | "lg" | "xl" | "full"
 }
 
-export function Container({ children, className, size = "lg" }: ContainerProps) {
+export function Container({ children, className, size = "xl" }: ContainerProps) {
   const sizeClasses = {
     sm: "max-w-2xl",
     md: "max-w-4xl", 
