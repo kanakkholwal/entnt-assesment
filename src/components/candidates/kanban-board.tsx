@@ -104,7 +104,7 @@ function DraggableCandidateCard({ candidate, onClick, isDragging }: DraggableCan
                 <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
                   {candidate.name}
                 </h4>
-                <p className="text-xs text-muted-foreground dark:text-gray-400 truncate">
+                <p className="text-xs text-muted-foreground  truncate">
                   {candidate.email}
                 </p>
               </div>
@@ -121,7 +121,7 @@ function DraggableCandidateCard({ candidate, onClick, isDragging }: DraggableCan
             </Button>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Applied {formatDistanceToNow(candidate.appliedAt, { addSuffix: true })}</span>
             {candidate.notes && candidate.notes.length > 0 && (
               <Badge variant="secondary" className="text-xs">

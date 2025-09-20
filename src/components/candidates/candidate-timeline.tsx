@@ -139,7 +139,7 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             {getEventBadge(event)}
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                            <span className="text-sm text-muted-foreground">
                               {format(new Date(event.createdAt), 'MMM d, yyyy')}
                             </span>
                           </div>
@@ -160,7 +160,7 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                             <div className="mt-2 p-2 bg-input rounded text-xs">
                               {Object.entries(event.metadata).map(([key, value]) => (
                                 <div key={key} className="flex justify-between">
-                                  <span className="text-muted-foreground dark:text-gray-400 capitalize">
+                                  <span className="text-muted-foreground  capitalize">
                                     {key.replace(/([A-Z])/g, ' $1').toLowerCase()}:
                                   </span>
                                   <span className="font-medium">
@@ -173,7 +173,7 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                         </div>
                         
                         <div className="text-right">
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-muted-foreground">
                             {formatDistanceToNow(new Date(event.createdAt), { addSuffix: true })}
                           </div>
                         </div>

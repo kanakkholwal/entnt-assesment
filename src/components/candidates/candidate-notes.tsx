@@ -224,7 +224,7 @@ export function CandidateNotes({ candidate }: CandidateNotesProps) {
           </div>
           
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <AtSign className="h-3 w-3" />
               <span>Use @ to mention team members</span>
             </div>
@@ -249,7 +249,7 @@ export function CandidateNotes({ candidate }: CandidateNotesProps) {
 
         {/* Notes List */}
         {sortedNotes.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-8 text-muted-foreground">
             <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No notes yet</p>
             <p className="text-sm">Add the first note to start tracking candidate interactions</p>
@@ -269,7 +269,7 @@ export function CandidateNotes({ candidate }: CandidateNotesProps) {
                     <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {note.authorName}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="text-xs text-muted-foreground">
                       {format(new Date(note.createdAt), 'MMM d, yyyy')}
                     </span>
                     <span className="text-xs text-gray-400">

@@ -206,7 +206,7 @@ function QuestionRuntime({
           <div className="mt-2">
             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
               <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground dark:text-gray-400 mb-1">
+              <p className="text-sm text-muted-foreground  mb-1">
                 Click to upload or drag and drop
               </p>
               {question.validation?.fileTypes && (
@@ -238,7 +238,7 @@ function QuestionRuntime({
               </Button>
             </div>
             {value && (
-              <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+              <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground  p-2 bg-gray-50 dark:bg-gray-800 rounded">
                 <FileText className="h-4 w-4" />
                 <span>{value.name || 'Selected file'}</span>
                 {value.size && (
@@ -305,7 +305,7 @@ function QuestionRuntime({
           </Label>
           {question.description && (
             <p className={cn(
-              "text-sm text-muted-foreground dark:text-gray-400 mt-1",
+              "text-sm text-muted-foreground  mt-1",
               isDisabled && "text-gray-500"
             )}>
               {question.description}
@@ -486,7 +486,7 @@ export function AssessmentRuntime({
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
             Loading Assessment
           </h3>
-          <p className="text-sm text-muted-foreground dark:text-gray-400">
+          <p className="text-sm text-muted-foreground ">
             Please wait while we load your assessment...
           </p>
         </div>
@@ -502,7 +502,7 @@ export function AssessmentRuntime({
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
             Assessment not found
           </h3>
-          <p className="text-sm text-muted-foreground dark:text-gray-400">
+          <p className="text-sm text-muted-foreground ">
             The requested assessment could not be loaded
           </p>
         </div>
@@ -518,7 +518,7 @@ export function AssessmentRuntime({
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
             No content available
           </h3>
-          <p className="text-sm text-muted-foreground dark:text-gray-400">
+          <p className="text-sm text-muted-foreground ">
             This assessment has no sections or questions
           </p>
         </div>
@@ -562,7 +562,7 @@ export function AssessmentRuntime({
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Assessment Submitted
           </h2>
-          <p className="text-muted-foreground dark:text-gray-400 mb-4">
+          <p className="text-muted-foreground  mb-4">
             Thank you for completing the assessment. Your responses have been saved.
           </p>
           <div className="text-sm text-gray-500">
@@ -577,16 +577,16 @@ export function AssessmentRuntime({
     <div className={cn("max-w-4xl mx-auto p-6 space-y-6", className)}>
       {/* Assessment Header */}
       <div className="text-center pb-6 border-b">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
           {assessment.title}
         </h1>
-        <p className="text-muted-foreground dark:text-gray-400 mb-4">
+        <p className="text-muted-foreground  mb-4">
           Section {currentSection + 1} of {assessment.sections.length}
         </p>
         
         {/* Progress */}
         <div className="max-w-md mx-auto">
-          <div className="flex justify-between text-sm text-muted-foreground dark:text-gray-400 mb-2">
+          <div className="flex justify-between text-sm text-muted-foreground mb-2">
             <span>Overall Progress</span>
             <span>{answeredQuestions} of {totalQuestions} questions</span>
           </div>
@@ -595,7 +595,7 @@ export function AssessmentRuntime({
 
         {/* Auto-save indicator */}
         {lastSaved && (
-          <div className="flex items-center justify-center gap-1 text-xs text-gray-500 mt-2">
+          <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-2">
             <Clock className="h-3 w-3" />
             <span>Last saved: {lastSaved.toLocaleTimeString()}</span>
           </div>
@@ -612,7 +612,7 @@ export function AssessmentRuntime({
             </Badge>
           </CardTitle>
           {currentSectionData.description && (
-            <p className="text-muted-foreground dark:text-gray-400">
+            <p className="text-muted-foreground ">
               {currentSectionData.description}
             </p>
           )}

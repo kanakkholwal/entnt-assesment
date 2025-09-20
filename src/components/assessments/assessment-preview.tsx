@@ -253,7 +253,7 @@ const QuestionPreview = React.memo(function QuestionPreview({
           </Label>
           {question.description && (
             <p className={cn(
-              "text-sm text-muted-foreground dark:text-gray-400 mt-1",
+              "text-sm text-muted-foreground  mt-1",
               isDisabled && "text-gray-500"
             )}>
               {question.description}
@@ -404,7 +404,7 @@ export function AssessmentPreview({
 
         {/* Progress */}
         <div className="max-w-md mx-auto">
-          <div className="flex justify-between text-xs text-muted-foreground dark:text-gray-400 mb-2">
+          <div className="flex justify-between text-xs text-muted-foreground  mb-2">
             <span>Progress</span>
             <span>{answeredQuestions} of {totalQuestions} questions</span>
           </div>

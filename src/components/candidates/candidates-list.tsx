@@ -187,7 +187,7 @@ export function CandidatesList({ className }: CandidatesListProps) {
       {/* Loading overlay */}
       {loading && (
         <div className="bg-card py-12 w-full rounded-xl flex items-center justify-center my-10">
-          <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+          <div className="flex items-center gap-2 text-muted-foreground ">
             <RefreshCw className="size-4 animate-spin" />
             Loading candidates...
           </div>

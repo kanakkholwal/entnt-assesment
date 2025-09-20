@@ -34,7 +34,7 @@ function AssessmentsPage() {
                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
                   No active jobs
                 </h3>
-                <p className="text-sm text-muted-foreground dark:text-gray-400 mt-1">
+                <p className="text-sm text-muted-foreground  mt-1">
                   Create some jobs first to build assessments for them
                 </p>
               </div>
@@ -68,7 +68,7 @@ function AssessmentsPage() {
                         <CardTitle className="text-lg font-semibold truncate">
                           {job.title}
                         </CardTitle>
-                        <p className="text-sm text-muted-foreground dark:text-gray-400 mt-1">
+                        <p className="text-sm text-muted-foreground  mt-1">
                           Job ID: {job.id}
                         </p>
                       </div>
@@ -80,7 +80,7 @@ function AssessmentsPage() {
                   <CardContent className="space-y-4">
                     {/* Assessment Status */}
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground dark:text-gray-400">Assessment:</span>
+                      <span className="text-muted-foreground ">Assessment:</span>
                       <div className="flex items-center gap-2">
                         {assessment ? (
                           <>
@@ -153,7 +153,7 @@ function AssessmentsPage() {
 
           {/* Help Text */}
           <div className="mt-8 text-center">
-            <p className="text-sm text-muted-foreground dark:text-gray-400">
+            <p className="text-sm text-muted-foreground ">
               Click "Create Assessment" or "Edit Assessment" to build custom assessments for each job.
               Use the preview button to see how candidates will experience the assessment.
             </p>

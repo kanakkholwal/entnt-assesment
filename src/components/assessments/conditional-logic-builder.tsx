@@ -73,7 +73,7 @@ export function ConditionalLogicBuilder({
   if (!rule && !isEditing) {
     return (
       <div className="text-center py-4">
-        <p className="text-sm text-muted-foreground dark:text-gray-400 mb-3">
+        <p className="text-sm text-muted-foreground  mb-3">
           No conditional logic set
         </p>
         <Button
@@ -116,7 +116,7 @@ export function ConditionalLogicBuilder({
         <div className="grid grid-cols-1 gap-4">
           {/* Dependent Question */}
           <div>
-            <Label className="text-xs font-medium text-muted-foreground dark:text-gray-400">
+            <Label className="text-xs font-medium text-muted-foreground ">
               When Question
             </Label>
             <Select
@@ -143,7 +143,7 @@ export function ConditionalLogicBuilder({
 
           {/* Condition */}
           <div>
-            <Label className="text-xs font-medium text-muted-foreground dark:text-gray-400">
+            <Label className="text-xs font-medium text-muted-foreground ">
               Condition
             </Label>
             <Select
@@ -169,7 +169,7 @@ export function ConditionalLogicBuilder({
           {/* Value (if needed) */}
           {needsValue && (
             <div>
-              <Label className="text-xs font-medium text-muted-foreground dark:text-gray-400">
+              <Label className="text-xs font-medium text-muted-foreground ">
                 Value
               </Label>
               {getDependentQuestion()?.type === 'single-choice' && getDependentQuestion()?.options ? (
@@ -209,7 +209,7 @@ export function ConditionalLogicBuilder({
 
           {/* Action */}
           <div>
-            <Label className="text-xs font-medium text-muted-foreground dark:text-gray-400">
+            <Label className="text-xs font-medium text-muted-foreground ">
               Then
             </Label>
             <Select

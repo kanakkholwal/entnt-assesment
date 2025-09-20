@@ -77,7 +77,7 @@ export const CandidateCard = memo<CandidateCardProps>(({ candidate, onClick }) =
               </Badge>
             </div>
             
-            <div className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+            <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
               <span>
                 Applied {formatDistanceToNow(new Date(candidate.appliedAt), { addSuffix: true })}
               </span>
