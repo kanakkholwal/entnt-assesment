@@ -59,6 +59,7 @@ export const initDevUtils = (): void => {
       getCandidates: (params = {}) => apiService.getCandidates({ page: 1, limit: 10, ...params }),
       getAssessments: (params = {}) => apiService.getAssessments({ page: 1, limit: 10, ...params })
     }
+    seedMockData()
 
     if (process.env.NODE_ENV === 'development')
       console.log(`

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { APIError, apiService } from '../services/api'
+import { type APIError, apiService } from '../services/api'
 import type { Candidate, CandidateFilters, CandidateStage } from '../types/candidate'
 import type { PaginationState } from '../types/common'
 import type { CandidatesStore } from '../types/store'
@@ -82,7 +82,7 @@ export const useCandidatesStore = create<CandidatesStore>()(
         } catch (error) {
           console.error('Failed to fetch candidate:', error)
         }
-        
+
         return null
       },
 
