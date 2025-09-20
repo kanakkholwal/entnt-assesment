@@ -1,310 +1,285 @@
-Welcome to your new TanStack app! 
+# TalentFlow - Modern Hiring Platform
 
-# Getting Started
+A comprehensive React-based hiring platform designed for HR teams to manage the complete recruitment lifecycle. Built with modern web technologies, TalentFlow provides job management, candidate tracking, and assessment capabilities with a focus on user experience, performance, and offline-first data persistence.
 
-To run this application:
+##  Quick Start
 
-```bash
-npm install
-npm run start
+### Prerequisites
+
+- Node.js 20+ 
+- npm or yarn package manager
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/kanakkholwal/entnt-assesment.git
+   cd entnt-assesment
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser**
+   Navigate to `http://localhost:3000`
+
+The application will automatically initialize with mock data including 25 jobs and 1000 candidates for testing.
+
+## 📋 Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server on port 3000 |
+| `npm run build` | Build for production |
+| `npm run build:production` | Build with production optimizations |
+| `npm run build:analyze` | Build and analyze bundle size |
+| `npm run preview` | Preview production build locally |
+| `npm run lint` | Run code linting |
+| `npm run format` | Format code with Biome |
+| `npm run check` | Run all code quality checks |
+
+##  Architecture Overview
+
+### TechStack
+
+- **Frontend Framework**: React 19 with TypeScript
+- **Build Tool**: Vite 6 for fast development and optimized builds
+- **UI Components**: shadcn/ui with Tailwind CSS v4
+- **State Management**: Zustand for lightweight, scalable state management
+- **Routing**: TanStack Router with file-based routing
+- **Mock API**: MSW (Mock Service Worker) for realistic API simulation
+- **Local Storage**: Dexie.js for IndexedDB operations
+- **Form Management**: React Hook Form with Zod validation
+- **Drag & Drop**: @dnd-kit for accessible interactions
+- **Virtualization**: @tanstack/react-virtual for large list performance
+
+### Project Structure
+
+```
+src/
+├── components/           # Reusable UI components
+│   ├── ui/              # shadcn/ui base components
+│   ├── jobs/            # Job-specific components
+│   ├── candidates/      # Candidate-specific      
+│   ├── assessments/     # Assessment-specific 
+│   └── layout/          # Layout components
+│   └── ur/              # Base components
+├── routes/              # TanStack Router route 
+├── stores/              # Zustand state stores
+├── services/            # API service layer
+├── mocks/               # MSW handlers and mock data
+├── db/                  # IndexedDB schema and 
+├── hooks/               # Custom React hooks
+├── lib/                 # Utility functions and 
+├── types/               # TypeScript type definitions
+└── utils/               # Helper utilities
 ```
 
-# Building For Production
+### Data Flow Architecture
 
-To build this application for production:
-
-```bash
-npm run build
+```mermaid
+graph TB
+    UI[UI Components] --> Stores[Zustand Stores]
+    Stores --> API[Fake API Service Layer]
+    API --> MSW[Mock Service Worker]
+    MSW --> IndexedDB[(IndexedDB)]
+    IndexedDB --> MSW
+    MSW --> API
+    API --> Stores
+    Stores --> UI
 ```
 
-## Testing
+##  Core Features
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+### 1. Job Management System
+- **CRUD Operations**: Create, read, update, and archive jobs
+- **Advanced Filtering**: Filter by title, status, and tags with real-time updates
+- **Drag & Drop Reordering**: Intuitive job prioritization with optimistic updates
+- **Deep Linking**: Direct URL access to specific jobs (`/jobs/:jobId`)
+- **Server-like Pagination**: Realistic pagination controls for large datasets
 
-```bash
-npm run test
-```
+### 2. Candidate Management System
+- **Virtualized Lists**: Smooth performance with 1000+ candidates using virtual scrolling
+- **Advanced Search**: Real-time client-side search by name and email
+- **Stage Management**: Kanban board with drag-and-drop between recruitment stages
+- **Candidate Profiles**: Comprehensive timeline of all status changes
+- **Notes System**: Rich notes with @mentions support and local user suggestions
+- **Stage Filtering**: Server-like filtering by current recruitment stage
 
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-
-## Linting & Formatting
-
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
-
-```bash
-npm run lint
-npm run format
-npm run check
-```
-
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
-
-```bash
-pnpx shadcn@latest add button
-```
+### 3. Assessment Builder & Runtime
+- **Visual Builder**: Drag-and-drop interface for creating job-specific assessments
+- **Multiple Question Types**: Single-choice, multi-choice, text, numeric, and file upload
+- **Conditional Logic**: Show/hide questions based on previous answers
+- **Live Preview**: Real-time preview pane showing assessment as fillable form
+- **Validation Rules**: Required fields, numeric ranges, and maximum length constraints
 
 
+### 4. Performance & User Experience
+- **Offline-First**: Full functionality without internet connection
+- **Optimistic Updates**: Immediate UI feedback with rollback on API failure
+- **Error Handling**: Comprehensive error boundaries with retry mechanisms
+- **Loading States**: Skeleton screens and loading indicators for all async operations
+- **Responsive Design**: Mobile-first design with touch-friendly interactions
 
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
+##  Technical Implementation
 
-### Adding A Route
+### State Management
 
-To add a new route to your application just add another a new file in the `./src/routes` directory.
+The application uses Zustand for state management with separate stores for different domains:
 
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
-```bash
-npm install @tanstack/react-query @tanstack/react-query-devtools
-```
-
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
-
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
+```typescript
+// Jobs Store
+interface JobsStore {
+  jobs: Job[]
+  loading: boolean
+  error: string | null
+  filters: JobFilters
+  pagination: PaginationState
+  
+  // Actions
+  fetchJobs: () => Promise<void>
+  createJob: (job: CreateJobRequest) => Promise<void>
+  updateJob: (id: string, updates: Partial<Job>) => Promise<void>
+  reorderJobs: (fromOrder: number, toOrder: number) => Promise<void>
 }
 ```
 
-You can also add TanStack Query Devtools to the root route (optional).
+### Mock API Layer
 
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+MSW provides realistic API simulation with:
+- **Artificial Latency**: 200-1200ms response times
+- **Error Simulation**: 5-10% error rate for testing error handling
+- **Data Persistence**: Write-through to IndexedDB for offline functionality
+- **Realistic Responses**: Proper HTTP status codes and response structures
 
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
+### Database Layer
 
-Now you can use `useQuery` to fetch your data.
+Dexie.js provides TypeScript-friendly IndexedDB operations:
 
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
+```typescript
+class TalentFlowDB extends Dexie {
+  jobs!: Table<Job>
+  candidates!: Table<Candidate>
+  assessments!: Table<Assessment>
+  assessmentResponses!: Table<AssessmentResponse>
+  timelineEvents!: Table<TimelineEvent>
 }
-
-export default App;
 ```
 
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
+### Performance Optimizations
 
-## State Management
+1. **Code Splitting**: Automatic route-based code splitting
+2. **Bundle Optimization**: Manual chunk splitting for vendor libraries
+3. **Virtualization**: Virtual scrolling for large candidate lists
+4. **Memoization**: React.memo and useMemo for expensive calculations
+5. **Debounced Operations**: Search and filter operations with debouncing
 
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
+##  Deployment
 
-First you need to add TanStack Store as a dependency:
+### Quick Deployment
 
-```bash
-npm install @tanstack/store
-```
+1. **Build for production**
+   ```bash
+   npm run build:production
+   ```
 
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
+2. **Deploy the `dist/` folder** to any static hosting platform
 
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
 
-const countStore = new Store(0);
 
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
 
-export default App;
-```
+**Zero Configuration Required**
+- No API keys or environment variables needed
+- No backend server required
+- Works on any static hosting platform
+- All data stored locally in browser
 
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
+##  Technical Decisions
 
-Let's check this out by doubling the count using derived state.
+### Why These Technologies?
 
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
+1. **Vite over Create React App**
+   - Faster development server with HMR
+   - Better build performance and optimization
+   - Native TypeScript support without ejecting
 
-const countStore = new Store(0);
+2. **Zustand over Redux**
+   - Smaller bundle size (2.9kb vs 47kb)
+   - Less boilerplate code
+   - Better TypeScript integration
+   - Simpler mental model
 
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
+3. **TanStack Router over React Router**
+   - Type-safe routing with automatic route generation
+   - Better performance with route-based code splitting
+   - Built-in search params and loader support
 
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
+4. **MSW over JSON Server**
+   - Runs in the browser without additional server
+   - Realistic network behavior simulation
+   - Better error handling and edge case testing
 
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
+5. **Dexie over LocalStorage**
+   - Structured data storage with indexing
+   - Better performance for large datasets
+   - Transaction support and data integrity
 
-export default App;
-```
+6. **shadcn/ui over Material-UI**
+   - Smaller bundle size with tree-shaking
+   - Full customization control
+   - Better accessibility out of the box
+   - Modern design system
 
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
+## Known Issues & Limitations
 
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
+### Current Limitations
 
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
+1. **Authentication System**
+   - No user authentication implemented
+   - All users share the same data context
+   - Notes are attributed to "Current User"
 
-# Demo files
+2. **Real-time Collaboration**
+   - No real-time updates between browser tabs
+   - Changes are only reflected after page refresh
 
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
+3. **File Upload Handling**
+   - File upload questions in assessments are UI-only
+   - No actual file storage or processing
 
-# Learn More
+4. **Email Integration**
+   - No email notifications for candidate status changes
+   - No email templates for communication
 
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+5. **Advanced Reporting**
+   - No analytics or reporting dashboard
+   - No export functionality for data
+
+### Technical Debt
+
+1. **@mentions Parsing**
+   - Notes support @mentions UI but parsing is not fully implemented
+   - User suggestions are hardcoded
+
+2. **Error Recovery**
+   - Some error states could have better recovery mechanisms
+   - Offline/online state detection could be improved
+
+3. **Performance Monitoring**
+   - No performance metrics collection
+   - Bundle size could be further optimized
+
+
+### Code Style
+
+- **TypeScript**: Strict mode enabled with comprehensive type checking
+- **ESLint + Biome**: Consistent code formatting and linting
+- **Conventional Commits**: Use conventional commit messages
+- **Component Structure**: Follow established patterns in existing components
